@@ -7,12 +7,16 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using System.Runtime.CompilerServices;
+using CardChoiceSpawnUniqueCardPatch.Utils;
+using UnboundLib; // requires unboundlib
+using UnboundLib.Cards;
 // requires Assembly-CSharp.dll
 // requires MMHOOK-Assembly-CSharp.dll
 
 namespace CardChoiceSpawnUniqueCardPatch
 {
-    [BepInPlugin(ModId, ModName, "0.0.0.0")]
+    [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInPlugin(ModId, ModName, "0.0.1.0")]
     [BepInProcess("Rounds.exe")]
     public class CardChoiceSpawnUniqueCardPatch : BaseUnityPlugin
     {
@@ -22,104 +26,14 @@ namespace CardChoiceSpawnUniqueCardPatch
         }
         private void Start()
         {
-
+            CustomCard.BuildCard<NullCard>(cardInfo => CardChoiceSpawnUniqueCardPatch.NullCard = cardInfo);
         }
 
         private const string ModId = "pykess.rounds.plugins.cardchoicespawnuniquecardpatch";
 
         private const string ModName = "CardChoiceSpawnUniqueCardPatch";
-    }
-    // stolen from PCE
-    public sealed class Cards
-    {
-        // singleton design
-        public static readonly Cards instance = new Cards();
-        private Cards()
-        {
-            Cards instance = this;
-        }
-        public bool CardIsUniqueFromCards(CardInfo card, CardInfo[] cards)
-        {
-            bool unique = true;
 
-            foreach (CardInfo otherCard in cards)
-            {
-                if (card.cardName == otherCard.cardName)
-                {
-                    unique = false;
-                }
-            }
-
-            return unique;
-        }
-
-        public bool CardDoesNotConflictWithCards(CardInfo card, CardInfo[] cards)
-        {
-            bool conflicts = false;
-
-            foreach (CardInfo otherCard in cards)
-            {
-                if (card.categories.Intersect(otherCard.blacklistedCategories).Any())
-                {
-                    conflicts = true;
-                }
-            }
-
-            return conflicts;
-        }
-
-        public bool PlayerIsAllowedCard(Player player, CardInfo card)
-        {
-            bool blacklisted = false;
-
-            foreach (CardInfo currentCard in player.data.currentCards)
-            {
-                if (card.categories.Intersect(currentCard.blacklistedCategories).Any())
-                {
-                    blacklisted = true;
-                }
-            }
-
-            return !blacklisted && (card.allowMultiple || !player.data.currentCards.Where(cardinfo => cardinfo.name == card.name).Any());
-
-        }
-        public CardInfo GetRandomCardWithCondition(CardChoice cardChoice, Player player, Func<CardInfo, Player, bool> condition, int maxattempts = 1000)
-        {
-
-            CardInfo card = ((GameObject)typeof(CardChoice).InvokeMember("GetRanomCard",
-                        BindingFlags.Instance | BindingFlags.InvokeMethod |
-                        BindingFlags.NonPublic, null, cardChoice, new object[] { })).GetComponent<CardInfo>();
-
-            int i = 0;
-
-            // draw a random card until it's an uncommon or the maximum number of attempts was reached
-            while (!condition(card, player) && i < maxattempts)
-            {
-                card = ((GameObject)typeof(CardChoice).InvokeMember("GetRanomCard",
-                           BindingFlags.Instance | BindingFlags.InvokeMethod |
-                           BindingFlags.NonPublic, null, cardChoice, new object[] { })).GetComponent<CardInfo>();
-                i++;
-            }
-
-            if (!condition(card, player))
-            {
-                return null;
-            }
-            else
-            {
-                return card;
-            }
-
-        }
-
-        public int GetCardID(CardInfo card)
-        {
-            return Array.IndexOf(global::CardChoice.instance.cards, card);
-        }
-        public CardInfo GetCardWithID(int cardID)
-        {
-            return global::CardChoice.instance.cards[cardID];
-        }
+        internal static CardInfo NullCard;
     }
 
     [Serializable]
@@ -154,35 +68,13 @@ namespace CardChoiceSpawnUniqueCardPatch
             {
                 // there are no valid cards left - this is an extremely unlikely scenario, only achievable if most of the cards have been disabled
 
-                // if any valid cards were found, just return one of those, even though its a duplicate
-
-                
-                List<GameObject> spawnedCards = (List<GameObject>)Traverse.Create(__instance).Field("spawnedCards").GetValue();
-
-                GameObject card;
-
-                if (spawnedCards.Count > 0)
-                {
-                    CardInfo cardInfo = Cards.instance.GetCardWithID(Cards.instance.GetCardID(spawnedCards[0].GetComponent<CardInfo>().sourceCard));
-                    card = cardInfo.gameObject;
-                }
-
-                // if no valid cards could be found, then just get any card at all because that's better than crashing the game
-                else
-                {
-                    card = ((GameObject)typeof(CardChoice).InvokeMember("GetRanomCard",
-                            BindingFlags.Instance | BindingFlags.InvokeMethod |
-                            BindingFlags.NonPublic, null, __instance, new object[] { }));
-                }
+                // return a blank card
                 GameObject gameObject = (GameObject)typeof(CardChoice).InvokeMember("Spawn",
-                            BindingFlags.Instance | BindingFlags.InvokeMethod |
-                            BindingFlags.NonPublic, null, __instance, new object[] { card.gameObject, pos, rot });
-                gameObject.GetComponent<CardInfo>().sourceCard = card.GetComponent<CardInfo>();
+                        BindingFlags.Instance | BindingFlags.InvokeMethod |
+                        BindingFlags.NonPublic, null, __instance, new object[] { CardChoiceSpawnUniqueCardPatch.NullCard.gameObject, pos, rot });
+                gameObject.GetComponent<CardInfo>().sourceCard = CardChoiceSpawnUniqueCardPatch.NullCard.GetComponent<CardInfo>();
                 gameObject.GetComponentInChildren<DamagableEvent>().GetComponent<Collider2D>().enabled = false;
-
-
                 __result = gameObject;
-
             }
 
             return false; // do not run the original method (BAD IDEA)
@@ -241,6 +133,56 @@ namespace CardChoiceSpawnUniqueCardPatch
                 }
                 return true;
             };
+        }
+    }
+    public class NullCard : CustomCard
+    {
+
+        public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
+        {
+        }
+        public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
+        {
+
+        }
+        public override void OnRemoveCard()
+        {
+        }
+
+        protected override string GetTitle()
+        {
+            return "    ";
+        }
+        protected override string GetDescription()
+        {
+            return "";
+        }
+
+        protected override GameObject GetCardArt()
+        {
+            return null;
+        }
+
+        protected override CardInfo.Rarity GetRarity()
+        {
+            return CardInfo.Rarity.Common;
+        }
+
+        protected override CardInfoStat[] GetStats()
+        {
+            return null;
+        }
+        protected override CardThemeColor.CardThemeColorType GetTheme()
+        {
+            return CardThemeColor.CardThemeColorType.TechWhite;
+        }
+        public override bool GetEnabled()
+        {
+            return false;
+        }
+        public override string GetModName()
+        {
+            return "Patch";
         }
     }
 }
