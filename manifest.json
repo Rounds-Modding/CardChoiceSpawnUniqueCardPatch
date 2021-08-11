@@ -1,10 +1,10 @@
 {
     "name": "CardChoiceSpawnUniqueCardPatch",
-    "version_number": "0.1.0",
+    "version_number": "0.1.1",
     "website_url": "https://github.com/Rounds-Modding/CardChoiceSpawnUniqueCardPatch",
     "description": "Patches erroneous logic in the base game CardChoice method SpawnUniqueCard",
     "dependencies": [
 	"BepInEx-BepInExPack_ROUNDS-5.4.1100",
-    "willis81808-UnboundLib-2.2.1"
+    "willis81808-UnboundLib-2.5.0"
     ]
 }

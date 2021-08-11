@@ -16,7 +16,7 @@ using UnboundLib.Cards;
 namespace CardChoiceSpawnUniqueCardPatch
 {
     [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin(ModId, ModName, "0.0.1.0")]
+    [BepInPlugin(ModId, ModName, "0.0.1.1")]
     [BepInProcess("Rounds.exe")]
     public class CardChoiceSpawnUniqueCardPatch : BaseUnityPlugin
     {

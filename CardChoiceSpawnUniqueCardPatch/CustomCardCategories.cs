@@ -2,6 +2,7 @@
 using UnityEngine; // requires UnityEngine.dll, UnityEngine.CoreModule.dll, and UnityEngine.AssetBundleModule.dll
 using HarmonyLib; // requires 0Harmony.dll
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System;
 using System.Runtime.CompilerServices;
 using CardChoiceSpawnUniqueCardPatch.Utils;
 using UnboundLib;
+using UnboundLib.Utils;
 // requires Assembly-CSharp.dll
 // requires MMHOOK-Assembly-CSharp.dll
 
@@ -25,7 +27,8 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
         {
             CustomCardCategories instance = this;
 
-            foreach (CardInfo activeCard in ((List<CardInfo>)typeof(Unbound).GetField("activeCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)).Concat((List<CardInfo>)typeof(Unbound).GetField("inactiveCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)))
+
+            foreach (CardInfo activeCard in ((ObservableCollection<CardInfo>)typeof(CardManager).GetField("activeCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)).ToList().Concat((List<CardInfo>)typeof(CardManager).GetField("inactiveCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)))
             {
                 foreach (CardCategory category in activeCard.categories)
                 {
@@ -50,11 +53,11 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
 
         public CardInfo[] GetActiveCardsFromCategory(CardCategory cardCategory)
         {
-            return Cards.instance.GetAllCardsWithCondition(((List<CardInfo>)typeof(Unbound).GetField("activeCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)).ToArray(), null, (card, player) => card.categories.Intersect(new CardCategory[] { cardCategory }).Any());
+            return Cards.instance.GetAllCardsWithCondition(((ObservableCollection<CardInfo>)typeof(CardManager).GetField("activeCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)).ToArray(), null, (card, player) => card.categories.Intersect(new CardCategory[] { cardCategory }).Any());
         }
         public CardInfo[] GetInactiveCardsFromCategory(CardCategory cardCategory)
         {
-            return Cards.instance.GetAllCardsWithCondition(((List<CardInfo>)typeof(Unbound).GetField("inactiveCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)).ToArray(), null, (card, player) => card.categories.Intersect(new CardCategory[] { cardCategory }).Any());
+            return Cards.instance.GetAllCardsWithCondition(((List<CardInfo>)typeof(CardManager).GetField("inactiveCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)).ToArray(), null, (card, player) => card.categories.Intersect(new CardCategory[] { cardCategory }).Any());
         }
         public CardInfo[] GetAllCardsFromCategory(CardCategory cardCategory)
         {
