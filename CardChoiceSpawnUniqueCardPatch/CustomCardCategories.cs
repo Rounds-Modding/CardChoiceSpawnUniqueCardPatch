@@ -8,7 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using System.Runtime.CompilerServices;
-using CardChoiceSpawnUniqueCardPatch.Utils;
+using ModdingUtils.Utils;
 using UnboundLib;
 using UnboundLib.Utils;
 // requires Assembly-CSharp.dll

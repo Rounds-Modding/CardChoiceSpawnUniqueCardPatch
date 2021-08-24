@@ -7,7 +7,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using System.Runtime.CompilerServices;
-using CardChoiceSpawnUniqueCardPatch.Utils;
+using ModdingUtils.Utils;
 using UnboundLib; // requires unboundlib
 using UnboundLib.Cards;
 // requires Assembly-CSharp.dll
@@ -16,7 +16,8 @@ using UnboundLib.Cards;
 namespace CardChoiceSpawnUniqueCardPatch
 {
     [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin(ModId, ModName, "0.0.1.1")]
+    [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInPlugin(ModId, ModName, "0.0.1.2")]
     [BepInProcess("Rounds.exe")]
     public class CardChoiceSpawnUniqueCardPatch : BaseUnityPlugin
     {
@@ -52,7 +53,7 @@ namespace CardChoiceSpawnUniqueCardPatch
                 player = PlayerManager.instance.players[__instance.pickrID];
             }
 
-            CardInfo validCard = Cards.instance.GetRandomCardWithCondition(__instance, player, CardChoicePatchSpawnUniqueCard.GetCondition(__instance));
+            CardInfo validCard = Cards.instance.GetRandomCardWithCondition(player, null, null, null, null, null, null, null, CardChoicePatchSpawnUniqueCard.GetCondition(__instance));
 
             if (validCard != null)
             {
@@ -79,9 +80,9 @@ namespace CardChoiceSpawnUniqueCardPatch
 
             return false; // do not run the original method (BAD IDEA)
         }
-        private static Func<CardInfo, Player, bool> GetCondition(CardChoice instance)
+        private static Func<CardInfo, Player, Gun, GunAmmo, CharacterData, HealthHandler, Gravity, Block, CharacterStatModifiers, bool> GetCondition(CardChoice instance)
         {
-            return (card, player) => (CardChoicePatchSpawnUniqueCard.BaseCondition(instance)(card, player) && CardChoicePatchSpawnUniqueCard.CorrectedCondition(instance)(card, player));
+            return (card, player, gun, gunAmmo, data, health, gravity, block, stats) => (CardChoicePatchSpawnUniqueCard.BaseCondition(instance)(card, player) && CardChoicePatchSpawnUniqueCard.CorrectedCondition(instance)(card, player));
         }
         private static Func<CardInfo, Player, bool> CorrectedCondition(CardChoice instance)
         {
