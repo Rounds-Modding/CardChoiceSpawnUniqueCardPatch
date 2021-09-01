@@ -17,7 +17,7 @@ namespace CardChoiceSpawnUniqueCardPatch
 {
     [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin(ModId, ModName, "0.0.1.2")]
+    [BepInPlugin(ModId, ModName, "0.0.1.3")]
     [BepInProcess("Rounds.exe")]
     public class CardChoiceSpawnUniqueCardPatch : BaseUnityPlugin
     {
@@ -53,7 +53,11 @@ namespace CardChoiceSpawnUniqueCardPatch
                 player = PlayerManager.instance.players[__instance.pickrID];
             }
 
-            CardInfo validCard = Cards.instance.GetRandomCardWithCondition(player, null, null, null, null, null, null, null, CardChoicePatchSpawnUniqueCard.GetCondition(__instance));
+            CardInfo validCard = null;
+            if (CardChoice.instance.cards.Length > 0)
+            {
+                Cards.instance.GetRandomCardWithCondition(player, null, null, null, null, null, null, null, CardChoicePatchSpawnUniqueCard.GetCondition(__instance));
+            }
 
             if (validCard != null)
             {
@@ -152,7 +156,7 @@ namespace CardChoiceSpawnUniqueCardPatch
 
         protected override string GetTitle()
         {
-            return "    ";
+            return "00 NULL CARD CARDCHOICESPAWNUNIQUECARDPATCH";
         }
         protected override string GetDescription()
         {

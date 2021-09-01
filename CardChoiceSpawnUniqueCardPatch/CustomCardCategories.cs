@@ -98,20 +98,14 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
 
         public void MakeCardsExclusive(CardInfo card1, CardInfo card2)
         {
-            string newName = "__" + card1.name + "_" + card2.name + "_EXCLUSIVE__";
-            CardCategory category =  this.GetCategoryWithName(newName);
-            if (category == null)
-            {
-                CardCategory newCategory = ScriptableObject.CreateInstance<CardCategory>();
-                newCategory.name = newName.ToLower();
-                this.cardCategories.Add(newCategory);
-
-                category = newCategory;
-            }
-            card1.categories = card1.categories.Concat(new CardCategory[] { category }).ToArray();
-            card2.categories = card2.categories.Concat(new CardCategory[] { category }).ToArray();
-            card1.blacklistedCategories = card1.blacklistedCategories.Concat(new CardCategory[] { category }).ToArray();
-            card2.blacklistedCategories = card2.blacklistedCategories.Concat(new CardCategory[] { category }).ToArray();
+            string name1 = "__" + card1.name + "_" + card2.name + "_EXCLUSIVE__";
+            string name2 = "__" + card2.name + "_" + card1.name + "_EXCLUSIVE__";
+            CardCategory category1 = this.CardCategory(name1);
+            CardCategory category2 = this.CardCategory(name2);
+            card1.categories = card1.categories.Concat(new CardCategory[] { category1 }).ToArray();
+            card2.categories = card2.categories.Concat(new CardCategory[] { category2 }).ToArray();
+            card1.blacklistedCategories = card1.blacklistedCategories.Concat(new CardCategory[] { category2 }).ToArray();
+            card2.blacklistedCategories = card2.blacklistedCategories.Concat(new CardCategory[] { category1 }).ToArray();
         }
 
     }
