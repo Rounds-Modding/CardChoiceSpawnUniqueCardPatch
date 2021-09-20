@@ -17,7 +17,7 @@ namespace CardChoiceSpawnUniqueCardPatch
 {
     [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin(ModId, ModName, "0.0.1.4")]
+    [BepInPlugin(ModId, ModName, "0.0.1.5")]
     [BepInProcess("Rounds.exe")]
     public class CardChoiceSpawnUniqueCardPatch : BaseUnityPlugin
     {
@@ -145,10 +145,11 @@ namespace CardChoiceSpawnUniqueCardPatch
 
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
+            cardInfo.sourceCard = CardChoiceSpawnUniqueCardPatch.NullCard;
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
-
+            this.gameObject.GetComponent<CardInfo>().sourceCard = CardChoiceSpawnUniqueCardPatch.NullCard;
         }
         public override void OnRemoveCard()
         {
@@ -156,7 +157,7 @@ namespace CardChoiceSpawnUniqueCardPatch
 
         protected override string GetTitle()
         {
-            return "00 NULL CARD CARDCHOICESPAWNUNIQUECARDPATCH";
+            return "  ";
         }
         protected override string GetDescription()
         {
@@ -187,7 +188,7 @@ namespace CardChoiceSpawnUniqueCardPatch
         }
         public override string GetModName()
         {
-            return "Patch";
+            return "NULL";
         }
     }
 }
