@@ -26,3 +26,7 @@ using using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 cardInfo.blacklistedCategories = new CardCategory[] { CustomCardCategories.instance.CardCategory("MySpecialCategory") };
 
 ```
+
+### Patch Notes
+
+- 1.6: performance improvements

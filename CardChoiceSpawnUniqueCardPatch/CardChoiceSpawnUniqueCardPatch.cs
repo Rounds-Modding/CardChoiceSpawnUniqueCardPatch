@@ -17,7 +17,7 @@ namespace CardChoiceSpawnUniqueCardPatch
 {
     [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin(ModId, ModName, "0.0.1.5")]
+    [BepInPlugin(ModId, ModName, "0.0.1.6")]
     [BepInProcess("Rounds.exe")]
     public class CardChoiceSpawnUniqueCardPatch : BaseUnityPlugin
     {
@@ -86,20 +86,21 @@ namespace CardChoiceSpawnUniqueCardPatch
         }
         private static Func<CardInfo, Player, Gun, GunAmmo, CharacterData, HealthHandler, Gravity, Block, CharacterStatModifiers, bool> GetCondition(CardChoice instance)
         {
-            return (card, player, gun, gunAmmo, data, health, gravity, block, stats) => (CardChoicePatchSpawnUniqueCard.BaseCondition(instance)(card, player) && CardChoicePatchSpawnUniqueCard.CorrectedCondition(instance)(card, player));
+            return (card, player, gun, gunAmmo, data, health, gravity, block, stats) => (CardChoicePatchSpawnUniqueCard.ModifiedBaseCondition(instance)(card, player) && CardChoicePatchSpawnUniqueCard.CorrectedCondition(instance)(card, player));
         }
         private static Func<CardInfo, Player, bool> CorrectedCondition(CardChoice instance)
         {
             return (card, player) => (Cards.instance.PlayerIsAllowedCard(player, card));
         }
-        private static Func<CardInfo, Player, bool> BaseCondition(CardChoice instance)
+        private static Func<CardInfo, Player, bool> ModifiedBaseCondition(CardChoice instance)
         {
             return (card, player) =>
             {
                 List<GameObject> spawnedCards = (List<GameObject>)Traverse.Create(instance).Field("spawnedCards").GetValue();
                 for (int i = 0; i < spawnedCards.Count; i++)
                 {
-                    bool flag = spawnedCards[i].GetComponent<CardInfo>().cardName == card.cardName;
+                    // slightly modified condition that if the card is the null card, then its okay that its a duplicate
+                    bool flag = card.cardName != NullCard.cardName && spawnedCards[i].GetComponent<CardInfo>().cardName == card.cardName;
                     if (instance.pickrID != -1)
                     {
                         Holdable holdable = player.data.GetComponent<Holding>().holdable;
@@ -142,7 +143,7 @@ namespace CardChoiceSpawnUniqueCardPatch
     }
     public class NullCard : CustomCard
     {
-
+        public const string cardName = "  ";
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             cardInfo.sourceCard = CardChoiceSpawnUniqueCardPatch.NullCard;
@@ -157,7 +158,7 @@ namespace CardChoiceSpawnUniqueCardPatch
 
         protected override string GetTitle()
         {
-            return "  ";
+            return cardName;
         }
         protected override string GetDescription()
         {
