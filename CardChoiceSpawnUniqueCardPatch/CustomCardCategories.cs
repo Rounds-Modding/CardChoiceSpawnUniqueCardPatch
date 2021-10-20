@@ -18,6 +18,9 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
 {
     public class CustomCardCategories
     {
+        // custom card class for cards that can be drawn multiple times in a single hand
+        public static CardCategory CanDrawMultipleCategory => CustomCategories.CustomCardCategories.instance.CardCategory("__CanDrawMultiple__");
+
         // singleton design, so that the categories are only created once
         public static readonly CustomCardCategories instance = new CustomCardCategories();
 

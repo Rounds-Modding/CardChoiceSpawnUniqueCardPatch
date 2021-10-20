@@ -17,7 +17,7 @@ namespace CardChoiceSpawnUniqueCardPatch
 {
     [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin(ModId, ModName, "0.0.1.6")]
+    [BepInPlugin(ModId, ModName, "0.0.1.7")]
     [BepInProcess("Rounds.exe")]
     public class CardChoiceSpawnUniqueCardPatch : BaseUnityPlugin
     {
@@ -99,8 +99,8 @@ namespace CardChoiceSpawnUniqueCardPatch
                 List<GameObject> spawnedCards = (List<GameObject>)Traverse.Create(instance).Field("spawnedCards").GetValue();
                 for (int i = 0; i < spawnedCards.Count; i++)
                 {
-                    // slightly modified condition that if the card is the null card, then its okay that its a duplicate
-                    bool flag = card.cardName != NullCard.cardName && spawnedCards[i].GetComponent<CardInfo>().cardName == card.cardName;
+                    // slightly modified condition that if the card has the CanDrawMultipleCategory, then its okay that its a duplicate
+                    bool flag = !card.categories.Contains(CustomCategories.CustomCardCategories.CanDrawMultipleCategory) && spawnedCards[i].GetComponent<CardInfo>().cardName == card.cardName;
                     if (instance.pickrID != -1)
                     {
                         Holdable holdable = player.data.GetComponent<Holding>().holdable;
@@ -147,6 +147,7 @@ namespace CardChoiceSpawnUniqueCardPatch
         public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers)
         {
             cardInfo.sourceCard = CardChoiceSpawnUniqueCardPatch.NullCard;
+            cardInfo.categories = cardInfo.categories.ToList().Concat(new List<CardCategory>() { CustomCategories.CustomCardCategories.CanDrawMultipleCategory }).ToArray();
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
