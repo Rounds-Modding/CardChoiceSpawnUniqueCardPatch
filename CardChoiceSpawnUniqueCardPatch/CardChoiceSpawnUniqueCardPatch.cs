@@ -17,7 +17,7 @@ namespace CardChoiceSpawnUniqueCardPatch
 {
     [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin(ModId, ModName, "0.0.1.7")]
+    [BepInPlugin(ModId, ModName, "0.1.8")]
     [BepInProcess("Rounds.exe")]
     public class CardChoiceSpawnUniqueCardPatch : BaseUnityPlugin
     {
@@ -100,7 +100,7 @@ namespace CardChoiceSpawnUniqueCardPatch
                 for (int i = 0; i < spawnedCards.Count; i++)
                 {
                     // slightly modified condition that if the card has the CanDrawMultipleCategory, then its okay that its a duplicate
-                    bool flag = !card.categories.Contains(CustomCategories.CustomCardCategories.CanDrawMultipleCategory) && spawnedCards[i].GetComponent<CardInfo>().cardName == card.cardName;
+                    bool flag = !card.categories.Contains(CustomCategories.CustomCardCategories.CanDrawMultipleCategory) && spawnedCards[i].GetComponent<CardInfo>().gameObject.name.Replace("(Clone)","") == card.gameObject.name;
                     if (instance.pickrID != -1)
                     {
                         Holdable holdable = player.data.GetComponent<Holding>().holdable;
@@ -126,7 +126,7 @@ namespace CardChoiceSpawnUniqueCardPatch
                                     }
                                 }
                             }
-                            if (!component4.allowMultiple && card.cardName == component4.cardName)
+                            if (!component4.allowMultiple && card.gameObject.name == component4.gameObject.name)
                             {
                                 flag = true;
                             }
