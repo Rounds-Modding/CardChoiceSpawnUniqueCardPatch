@@ -54,6 +54,26 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
                         }
                     }
                 }
+                for (int i = 0; i < activeCard.blacklistedCategories.Length; i++)
+                {
+                    var category = activeCard.blacklistedCategories[i];
+                    if(category == null)
+                    {
+                        continue;
+                    }
+                    if (!instance.cardCategories.Contains(category))
+                    {
+                        var storedCategory = GetCategoryWithName(activeCard.categories[i].name);
+                        if (storedCategory != null)
+                        {
+                            activeCard.blacklistedCategories[i] = storedCategory;
+                        }
+                        else
+                        {
+                            cardCategories.Add(category);
+                        }
+                    }
+                }
             }
 
         }
