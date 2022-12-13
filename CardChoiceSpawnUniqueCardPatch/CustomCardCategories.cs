@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using ModdingUtils.Utils;
 using UnboundLib;
 using UnboundLib.Utils;
+using System.Xml.Linq;
 // requires Assembly-CSharp.dll
 // requires MMHOOK-Assembly-CSharp.dll
 
@@ -33,13 +34,25 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
 
             foreach (CardInfo activeCard in ((ObservableCollection<CardInfo>)typeof(CardManager).GetField("activeCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)).ToList().Concat((List<CardInfo>)typeof(CardManager).GetField("inactiveCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)))
             {
-                foreach (CardCategory category in activeCard.categories)
+                for (int i = 0; i < activeCard.categories.Length; i++)
                 {
+                    var category = activeCard.categories[i];
+                    if(category == null)
+                    {
+                        continue;
+                    }
                     if (!instance.cardCategories.Contains(category))
                     {
-                        cardCategories.Add(category);
+                        var storedCategory = GetCategoryWithName(activeCard.categories[i].name);
+                        if (storedCategory != null)
+                        {
+                            activeCard.categories[i] = storedCategory;
+                        }
+                        else
+                        {
+                            cardCategories.Add(category);
+                        }
                     }
-
                 }
             }
 
