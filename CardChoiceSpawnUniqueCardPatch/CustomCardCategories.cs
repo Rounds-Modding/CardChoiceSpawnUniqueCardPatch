@@ -30,13 +30,30 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
         {
             CustomCardCategories instance = this;
 
+            CardInfo[] vanilla = Resources.LoadAll<GameObject>("0 Cards/").Where(obj => obj.GetComponent<CardInfo>()).Select(obj2 => obj2.GetComponent<CardInfo>()).ToArray();
+
+            foreach (CardInfo card in vanilla)
+            {
+                UpdateAndPullCategoriesFromCard(card);
+            }
 
             foreach (CardInfo card in CardManager.cards.Values.Select(c => c.cardInfo))
             {
                 UpdateAndPullCategoriesFromCard(card);
             }
 
+            CardManager.AddAllCardsCallback(FirstStartAction);
+
             UnityEngine.Debug.Log("CustomCardCategories Setup");
+        }
+
+        private void FirstStartAction(CardInfo[] cards)
+        {
+            foreach (CardInfo card in cards)
+            {
+                UpdateAndPullCategoriesFromCard(card);
+            }
+            UnityEngine.Debug.Log("FirstStartAction run");
         }
 
         public CardCategory[] GetCategoriesFromCard(CardInfo card)
