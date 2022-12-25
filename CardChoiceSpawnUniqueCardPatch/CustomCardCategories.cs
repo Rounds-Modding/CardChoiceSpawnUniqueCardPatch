@@ -34,46 +34,7 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
 
             foreach (CardInfo activeCard in ((ObservableCollection<CardInfo>)typeof(CardManager).GetField("activeCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)).ToList().Concat((List<CardInfo>)typeof(CardManager).GetField("inactiveCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)))
             {
-                for (int i = 0; i < activeCard.categories.Length; i++)
-                {
-                    var category = activeCard.categories[i];
-                    if(category == null)
-                    {
-                        continue;
-                    }
-                    if (!instance.cardCategories.Contains(category))
-                    {
-                        var storedCategory = GetCategoryWithName(activeCard.categories[i].name);
-                        if (storedCategory != null)
-                        {
-                            activeCard.categories[i] = storedCategory;
-                        }
-                        else
-                        {
-                            cardCategories.Add(category);
-                        }
-                    }
-                }
-                for (int i = 0; i < activeCard.blacklistedCategories.Length; i++)
-                {
-                    var category = activeCard.blacklistedCategories[i];
-                    if(category == null)
-                    {
-                        continue;
-                    }
-                    if (!instance.cardCategories.Contains(category))
-                    {
-                        var storedCategory = GetCategoryWithName(activeCard.categories[i].name);
-                        if (storedCategory != null)
-                        {
-                            activeCard.blacklistedCategories[i] = storedCategory;
-                        }
-                        else
-                        {
-                            cardCategories.Add(category);
-                        }
-                    }
-                }
+                UpdateAndPullCategoriesFromCard(activeCard);
             }
 
         }
@@ -98,6 +59,56 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
         public CardInfo[] GetAllCardsFromCategory(CardCategory cardCategory)
         {
             return this.GetActiveCardsFromCategory(cardCategory).Concat(this.GetInactiveCardsFromCategory(cardCategory)).ToArray();
+        }
+
+        public void UpdateAndPullCategoriesFromCard(CardInfo card)
+        {
+            List<CardCategory> goodCategories = new List<CardCategory>();
+            for (int i = 0; i < card.categories.Length; i++)
+            {
+                var category = card.categories[i];
+                if (category == null)
+                {
+                    continue;
+                }
+                goodCategories.Add(category);
+                if (!instance.cardCategories.Contains(category))
+                {
+                    var storedCategory = GetCategoryWithName(card.categories[i].name);
+                    if (storedCategory != null)
+                    {
+                        card.categories[i] = storedCategory;
+                    }
+                    else
+                    {
+                        cardCategories.Add(category);
+                    }
+                }
+            }
+            card.categories = goodCategories.ToArray();
+            goodCategories = new List<CardCategory>();
+            for (int i = 0; i < card.blacklistedCategories.Length; i++)
+            {
+                var category = card.blacklistedCategories[i];
+                if (category == null)
+                {
+                    continue;
+                }
+                goodCategories.Add(category);
+                if (!instance.cardCategories.Contains(category))
+                {
+                    var storedCategory = GetCategoryWithName(card.categories[i].name);
+                    if (storedCategory != null)
+                    {
+                        card.blacklistedCategories[i] = storedCategory;
+                    }
+                    else
+                    {
+                        cardCategories.Add(category);
+                    }
+                }
+            }
+            card.blacklistedCategories = goodCategories.ToArray();
         }
 
         private CardCategory GetCategoryWithName(string categoryName)
