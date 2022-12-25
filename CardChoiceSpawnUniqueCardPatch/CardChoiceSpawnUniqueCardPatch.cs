@@ -24,6 +24,7 @@ namespace CardChoiceSpawnUniqueCardPatch
         private void Awake()
         {
             new Harmony(ModId).PatchAll();
+            var _ = CustomCategories.CustomCardCategories.instance;
         }
         private void Start()
         {
