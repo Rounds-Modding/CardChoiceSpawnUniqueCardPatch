@@ -1,6 +1,6 @@
 {
     "name": "CardChoiceSpawnUniqueCardPatch",
-    "version_number": "0.1.8",
+    "version_number": "0.1.9",
     "website_url": "https://github.com/Rounds-Modding/CardChoiceSpawnUniqueCardPatch",
     "description": "Patches erroneous logic in the base game CardChoice method SpawnUniqueCard",
     "dependencies": [
