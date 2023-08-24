@@ -87,7 +87,7 @@ namespace CardChoiceSpawnUniqueCardPatch
         }
         private static Func<CardInfo, Player, Gun, GunAmmo, CharacterData, HealthHandler, Gravity, Block, CharacterStatModifiers, bool> GetCondition(CardChoice instance)
         {
-            return (card, player, gun, gunAmmo, data, health, gravity, block, stats) => (CardChoicePatchSpawnUniqueCard.ModifiedBaseCondition(instance)(card, player) && CardChoicePatchSpawnUniqueCard.CorrectedCondition(instance)(card, player));
+            return (card, player, gun, gunAmmo, data, health, gravity, block, stats) => CorrectedCondition(instance)(card, player) && ModifiedBaseCondition(instance)(card, player);
         }
         private static Func<CardInfo, Player, bool> CorrectedCondition(CardChoice instance)
         {
@@ -98,47 +98,31 @@ namespace CardChoiceSpawnUniqueCardPatch
             return (card, player) =>
             {
                 List<GameObject> spawnedCards = (List<GameObject>)Traverse.Create(instance).Field("spawnedCards").GetValue();
-                for (int i = 0; i < spawnedCards.Count; i++)
+
+                //check if gun is locked to default
+                if(instance.pickrID != -1) 
                 {
-                    // slightly modified condition that if the card has the CanDrawMultipleCategory, then its okay that its a duplicate
-                    bool flag = !card.categories.Contains(CustomCategories.CustomCardCategories.CanDrawMultipleCategory) && spawnedCards[i].GetComponent<CardInfo>().gameObject.name.Replace("(Clone)","") == card.gameObject.name;
-                    if (instance.pickrID != -1)
+                    Holdable holdable = player.data.GetComponent<Holding>().holdable;
+                    if(holdable) 
                     {
-                        Holdable holdable = player.data.GetComponent<Holding>().holdable;
-                        if (holdable)
+                        Gun component2 = holdable.GetComponent<Gun>();
+                        Gun component3 = card.GetComponent<Gun>();
+                        if(component3 && component2 && component3.lockGunToDefault && component2.lockGunToDefault) 
                         {
-                            Gun component2 = holdable.GetComponent<Gun>();
-                            Gun component3 = card.GetComponent<Gun>();
-                            if (component3 && component2 && component3.lockGunToDefault && component2.lockGunToDefault)
-                            {
-                                flag = true;
-                            }
+                            return false;
                         }
-                        for (int j = 0; j < player.data.currentCards.Count; j++)
-                        {
-                            CardInfo component4 = player.data.currentCards[j].GetComponent<CardInfo>();
-                            for (int k = 0; k < component4.blacklistedCategories.Length; k++)
-                            {
-                                for (int l = 0; l < card.categories.Length; l++)
-                                {
-                                    if (card.categories[l] == component4.blacklistedCategories[k])
-                                    {
-                                        flag = true;
-                                    }
-                                }
-                            }
-                            if (!component4.allowMultiple && card.gameObject.name == component4.gameObject.name)
-                            {
-                                flag = true;
-                            }
-                        }
-                    }
-                    if (flag)
-                    {
-                        return false;
                     }
                 }
-                return true;
+
+                // slightly modified condition that if the card has the CanDrawMultipleCategory, then its okay that its a duplicate
+                if(card.categories.Contains(CustomCategories.CustomCardCategories.CanDrawMultipleCategory)) 
+                {
+                    return true;
+                }
+                else 
+                {
+                    return spawnedCards.Any(spawnedCard => spawnedCard.name.Replace("(Clone)", "") == card.gameObject.name);
+                }
             };
         }
     }
