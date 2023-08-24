@@ -121,7 +121,7 @@ namespace CardChoiceSpawnUniqueCardPatch
                 }
                 else 
                 {
-                    return spawnedCards.Any(spawnedCard => spawnedCard.name.Replace("(Clone)", "") == card.gameObject.name);
+                    return !spawnedCards.Any(spawnedCard => spawnedCard.name.Replace("(Clone)", "") == card.gameObject.name);
                 }
             };
         }
