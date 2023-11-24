@@ -43,8 +43,6 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
             }
 
             CardManager.AddAllCardsCallback(FirstStartAction);
-
-            //UnityEngine.Debug.Log("CustomCardCategories Setup");
         }
 
         private void FirstStartAction(CardInfo[] cards)
@@ -53,7 +51,6 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
             {
                 UpdateAndPullCategoriesFromCard(card);
             }
-            //UnityEngine.Debug.Log("FirstStartAction run");
         }
 
         public CardCategory[] GetCategoriesFromCard(CardInfo card)
