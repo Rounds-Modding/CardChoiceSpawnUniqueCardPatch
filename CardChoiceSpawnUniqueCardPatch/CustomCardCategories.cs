@@ -30,19 +30,27 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
         {
             CustomCardCategories instance = this;
 
+            CardInfo[] vanilla = Resources.LoadAll<GameObject>("0 Cards/").Where(obj => obj.GetComponent<CardInfo>()).Select(obj2 => obj2.GetComponent<CardInfo>()).ToArray();
 
-            foreach (CardInfo activeCard in ((ObservableCollection<CardInfo>)typeof(CardManager).GetField("activeCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)).ToList().Concat((List<CardInfo>)typeof(CardManager).GetField("inactiveCards", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null)))
+            foreach (CardInfo card in vanilla)
             {
-                foreach (CardCategory category in activeCard.categories)
-                {
-                    if (!instance.cardCategories.Contains(category))
-                    {
-                        cardCategories.Add(category);
-                    }
-
-                }
+                UpdateAndPullCategoriesFromCard(card);
             }
 
+            foreach (CardInfo card in CardManager.cards.Values.Select(c => c.cardInfo))
+            {
+                UpdateAndPullCategoriesFromCard(card);
+            }
+
+            CardManager.AddAllCardsCallback(FirstStartAction);
+        }
+
+        private void FirstStartAction(CardInfo[] cards)
+        {
+            foreach (CardInfo card in cards)
+            {
+                UpdateAndPullCategoriesFromCard(card);
+            }
         }
 
         public CardCategory[] GetCategoriesFromCard(CardInfo card)
@@ -52,6 +60,64 @@ namespace CardChoiceSpawnUniqueCardPatch.CustomCategories
         public CardCategory[] GetBlacklistedCategoriesFromCard(CardInfo card)
         {
             return card.blacklistedCategories;
+        }
+
+        public void UpdateAndPullCategoriesFromCard(CardInfo card)
+        {
+            List<CardCategory> goodCategories = new List<CardCategory>();
+            for (int i = 0; i < card.categories.Length; i++)
+            {
+                CardCategory category = card.categories[i];
+
+                if (category == null)
+                {
+                    continue;
+                }
+
+                if (!this.cardCategories.Contains(category))
+                {
+                    var storedCategory = GetCategoryWithName(category.name);
+
+                    if (storedCategory != null)
+                    {
+                        card.categories[i] = storedCategory;
+                        category = card.categories[i];
+                    }
+                    else
+                    {
+                        this.cardCategories.Add(category);
+                    }
+                }
+                goodCategories.Add(category);
+            }
+            card.categories = goodCategories.ToArray();
+            goodCategories = new List<CardCategory>();
+            for (int i = 0; i < card.blacklistedCategories.Length; i++)
+            {
+                CardCategory category = card.blacklistedCategories[i];
+
+                if (category == null)
+                {
+                    continue;
+                }
+
+                if (!this.cardCategories.Contains(category))
+                {
+                    var storedCategory = GetCategoryWithName(category.name);
+
+                    if (storedCategory != null)
+                    {
+                        card.blacklistedCategories[i] = storedCategory;
+                        category = card.blacklistedCategories[i];
+                    }
+                    else
+                    {
+                        this.cardCategories.Add(category);
+                    }
+                }
+                goodCategories.Add(category);
+            }
+            card.blacklistedCategories = goodCategories.ToArray();
         }
 
         public CardInfo[] GetActiveCardsFromCategory(CardCategory cardCategory)
